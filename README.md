@@ -1,83 +1,61 @@
-# 🛒 Gestao-loja
+# GESTAO-LOJA
 
 > Sistema de gerenciamento de produtos e vendas com banco de dados MySQL e back-end em Python.
 
-----------------------------------------
-
 ## ✨ FUNCIONALIDADES
 
-- **CRUD Completo** de produtos (criar, listar, buscar, editar, excluir)
-- **CRUD Completo** de vendas com controle automático de estoque
-- **Busca avançada** por ID, nome ou faixa de preço
-- **Relatório de vendas** por período com resumo
-- **Validações robustas** em todas as entradas do usuário
-- **Logging automático** de todas as operações
-- **Transações atômicas** para consistência dos dados
-- **Prepared statements** para proteção contra SQL Injection
+* CRUD completo — criar, listar, buscar, editar e excluir produtos
+* CRUD completo de vendas — registro com controle automático de estoque
+* Busca avançada — por ID, nome ou faixa de preço
+* Relatório de vendas — filtro por período com resumo de itens e total
+* Validações robustas — inteiros, floats, datas e strings validados antes de processar
+* Logging automático — auditoria completa em `sistema.log`
+* Transações atômicas — commit/rollback para consistência dos dados
+* Prepared statements — proteção contra SQL Injection
 
-----------------------------------------
+## 🛠️ TECNOLOGIAS
 
-## 🛠️ STACK TECNOLÓGICA
-
-| Categoria | Tecnologia |
-|-----------|-----------|
-| Linguagem | Python 3.10+ |
-| Banco de Dados | MySQL 8.0+ |
-| ORM/Driver | mysql-connector-python |
-| Configuração | python-dotenv |
-| Paradigma | Programação Orientada a Objetos |
-
-----------------------------------------
+| Backend | Banco de Dados | Configuração |
+|---------|---------------|--------------|
+| Python 3.10+ | MySQL 8.0+ | python-dotenv |
+| mysql-connector-python | Transações ACID | .env |
+| Programação Orientada a Objetos | Prepared statements | |
 
 ## 📋 PRÉ-REQUISITOS
 
-- Python 3.10 ou superior
-- MySQL Server instalado e rodando
-- Pip (gerenciador de pacotes Python)
+* Python 3.10 ou superior
+* MySQL Server >= 8.0
+* pip
 
-----------------------------------------
+## 🚀 INSTALAÇÃO
 
-## � COMO RODAR LOCALMENTE
-
-### 1. Clone o repositório
-
+### 1. CLONE O REPOSITÓRIO
 ```bash
 git clone https://github.com/LuizGSN/Projeto_CRUD.git
 cd Projeto_CRUD
 ```
 
-### 2. Instale as dependências
-
+### 2. INSTALE AS DEPENDÊNCIAS
 ```bash
 pip install -r requirements.txt
 ```
 
-### 3. Crie o banco de dados
-
+### 3. CRIE O BANCO DE DADOS
 ```bash
 mysql -u root -p < projeto_crud.sql
 ```
-
 Ou execute manualmente:
-
-```bash
-mysql -u root -p
-```
-
 ```sql
-create database loja;
-use loja;
+CREATE DATABASE loja;
+USE loja;
 -- O script completo está em projeto_crud.sql
 ```
 
-### 4. Configure as variáveis de ambiente
-
+### 4. CONFIGURE AS VARIÁVEIS DE AMBIENTE
 ```bash
 copy .env.example .env
 ```
-
-Edite o arquivo `.env` com suas credenciais:
-
+Edite o `.env` com suas credenciais:
 ```env
 DB_HOST=localhost
 DB_USER=root
@@ -85,55 +63,48 @@ DB_PASSWORD=sua_senha_aqui
 DB_DATABASE=loja
 ```
 
-### 5. Execute a aplicação
-
+### 5. EXECUTE A APLICAÇÃO
 ```bash
 python main.py
 ```
-
-----------------------------------------
+O menu interativo aparecerá no terminal com opções para gerenciar produtos e vendas.
 
 ## 📁 ESTRUTURA DO PROJETO
-
-```
+```text
 Projeto_CRUD/
 ├── main.py              # Programa principal com menu e lógica
-├── database.py          # Gerenciamento do banco de dados (DatabaseManager)
+├── database.py          # DatabaseManager — conexão e operações MySQL
 ├── validators.py        # Validações de entrada do usuário
-├── utils.py             # Funções utilitárias
+├── utils.py             # Funções utilitárias (formatação, limpeza)
 ├── projeto_crud.sql     # Script de criação do banco
 ├── requirements.txt     # Dependências Python
-├── .env.example         # Exemplo de configuração do banco
-├── .gitignore           # Arquivos ignorados pelo Git
-└── README.md            # Documentação do projeto
+├── .env.example         # Variáveis de ambiente modelo
+├── .gitignore
+└── README.md
 ```
-
-----------------------------------------
 
 ## 🔒 SEGURANÇA
 
-- **SQL Injection**: Todas as queries usam prepared statements com placeholders (`%s`)
-- **Credenciais protegidas**: Dados sensíveis em arquivo `.env` (não versionado)
-- **Validações de entrada**: Inteiros positivos, floats, datas e strings validados antes de processar
-- **Transações atômicas**: Operações de venda usam commit/rollback para garantir consistência
+* Prepared statements com placeholders (`%s`) em todas as queries — proteção total contra SQL Injection
+* Credenciais em arquivo `.env` (não versionado pelo `.gitignore`)
+* Validação de entrada em todos os inputs — inteiros positivos, floats, datas e strings
+* Transações atômicas com commit/rollback — consistência garantida em vendas e exclusões
+* Logging de todas as operações — auditoria completa em `sistema.log`
 
-----------------------------------------
+## 🎯 BOAS PRÁTICAS
 
-## 🎯 BOAS PRÁTICAS APLICADAS
+* POO — classes `SistemaLoja` e `DatabaseManager` com responsabilidades bem definidas
+* DRY — código reutilizável com métodos específicos por operação
+* Separação de responsabilidades — módulos lógicos separados (db, validação, utils, lógica)
+* Tratamento de erros — try/except em todas as operações críticas
+* Type hints — documentação de tipos em funções críticas
 
-- **POO**: Classes `SistemaLoja` e `DatabaseManager` com responsabilidades bem definidas
-- **DRY**: Código reutilizável com métodos específicos para cada operação
-- **Logging**: Auditoria completa com `sistema.log`
-- **Tratamento de erros**: Try/except em todas as operações críticas
-- **Separação de responsabilidades**: Código dividido em módulos lógicos
-- **Type hints**: Documentação de tipos em funções críticas
+---
 
-----------------------------------------
+## 📝 LICENÇA
 
-## � LICENÇA
+Este projeto está sob a licença MIT. Veja o arquivo `LICENSE` para detalhes.
 
-Este projeto é open-source e está disponível para uso educacional.
+---
 
-----------------------------------------
-
-**⭐ Se este projeto te ajudou, deixe uma estrela!**
+*Desenvolvido por Luiz Gonzaga — Estudante de Análise e Desenvolvimento de Sistemas*
