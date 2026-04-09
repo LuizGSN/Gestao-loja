@@ -1,5 +1,9 @@
 # GESTAO-LOJA
 
+![Python](https://img.shields.io/badge/Python-3.10%2B-blue?logo=python)
+![MySQL](https://img.shields.io/badge/MySQL-8.0%2B-orange?logo=mysql)
+![License](https://img.shields.io/badge/License-MIT-green)
+
 > Sistema de gerenciamento de produtos e vendas com banco de dados MySQL e back-end em Python.
 
 ## ✨ FUNCIONALIDADES
@@ -17,9 +21,9 @@
 
 | Backend | Banco de Dados | Configuração |
 |---------|---------------|--------------|
-| Python 3.10+ | MySQL 8.0+ | python-dotenv |
-| mysql-connector-python | Transações ACID | .env |
-| Programação Orientada a Objetos | Prepared statements | |
+| ![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python) | ![MySQL](https://img.shields.io/badge/MySQL-8.0%2B-4479A1?logo=mysql) | ![dotenv](https://img.shields.io/badge/python--dotenv-black?logo=python) |
+| POO | Transações ACID | .env |
+| Prepared statements | Prepared statements | |
 
 ## 📋 PRÉ-REQUISITOS
 
@@ -31,8 +35,8 @@
 
 ### 1. CLONE O REPOSITÓRIO
 ```bash
-git clone https://github.com/LuizGSN/Projeto_CRUD.git
-cd Projeto_CRUD
+git clone https://github.com/LuizGSN/Gestao-loja.git
+cd Gestao-loja
 ```
 
 ### 2. INSTALE AS DEPENDÊNCIAS
@@ -71,7 +75,7 @@ O menu interativo aparecerá no terminal com opções para gerenciar produtos e 
 
 ## 📁 ESTRUTURA DO PROJETO
 ```text
-Projeto_CRUD/
+Gestao-loja/
 ├── main.py              # Programa principal com menu e lógica
 ├── database.py          # DatabaseManager — conexão e operações MySQL
 ├── validators.py        # Validações de entrada do usuário
