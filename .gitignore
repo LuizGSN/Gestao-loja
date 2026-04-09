@@ -1,0 +1,28 @@
+# Arquivos sensíveis
+.env
+
+# Logs
+*.log
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Qwen Code
+.qwen/
+
+# OS
+.DS_Store
+Thumbs.db
