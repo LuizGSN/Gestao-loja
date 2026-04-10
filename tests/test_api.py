@@ -4,7 +4,7 @@ Testes de integração para a API REST.
 
 import pytest
 from httpx import AsyncClient, ASGITransport
-from unittest.mock import Mock, patch
+from unittest.mock import Mock
 from datetime import date
 
 from main import criar_app_api
@@ -66,8 +66,7 @@ class TestProdutosAPI:
     @pytest.mark.asyncio
     async def test_listar_produtos(self, client, mock_db):
         """Testa listagem de produtos."""
-        async with client as c:
-            response = await c.get("/api/v1/produtos/")
+        response = await client.get("/api/v1/produtos/")
         
         assert response.status_code == 200
         data = response.json()
@@ -78,8 +77,7 @@ class TestProdutosAPI:
     @pytest.mark.asyncio
     async def test_buscar_produto_por_id(self, client, mock_db):
         """Testa busca de produto por ID."""
-        async with client as c:
-            response = await c.get("/api/v1/produtos/1")
+        response = await client.get("/api/v1/produtos/1")
         
         assert response.status_code == 200
         data = response.json()
@@ -91,8 +89,7 @@ class TestProdutosAPI:
         """Testa busca de produto inexistente."""
         mock_db.buscar_produto_por_id.return_value = None
         
-        async with client as c:
-            response = await c.get("/api/v1/produtos/999")
+        response = await client.get("/api/v1/produtos/999")
         
         assert response.status_code == 404
     
@@ -108,8 +105,7 @@ class TestProdutosAPI:
             "preco": 299.90
         }
         
-        async with client as c:
-            response = await c.post("/api/v1/produtos/", json=produto_data)
+        response = await client.post("/api/v1/produtos/", json=produto_data)
         
         assert response.status_code == 201
         data = response.json()
@@ -122,8 +118,7 @@ class TestProdutosAPI:
         
         update_data = {"nome": "Notebook Pro"}
         
-        async with client as c:
-            response = await c.put("/api/v1/produtos/1", json=update_data)
+        response = await client.put("/api/v1/produtos/1", json=update_data)
         
         assert response.status_code == 200
     
@@ -132,8 +127,7 @@ class TestProdutosAPI:
         """Testa exclusão de produto."""
         mock_db.excluir_produto.return_value = None
         
-        async with client as c:
-            response = await c.delete("/api/v1/produtos/1")
+        response = await client.delete("/api/v1/produtos/1")
         
         assert response.status_code == 200
 
@@ -145,8 +139,7 @@ class TestVendasAPI:
     @pytest.mark.asyncio
     async def test_listar_vendas(self, client, mock_db):
         """Testa listagem de vendas."""
-        async with client as c:
-            response = await c.get("/api/v1/vendas/")
+        response = await client.get("/api/v1/vendas/")
         
         assert response.status_code == 200
         data = response.json()
@@ -166,8 +159,7 @@ class TestVendasAPI:
             "data_venda": "2024-01-20"
         }
         
-        async with client as c:
-            response = await c.post("/api/v1/vendas/", json=venda_data)
+        response = await client.post("/api/v1/vendas/", json=venda_data)
         
         assert response.status_code == 201
     
@@ -178,20 +170,21 @@ class TestVendasAPI:
         
         venda_data = {
             "id_produto": 1,
-            "qntd_vendida": 5,  # Mais do que estoque
+            "qntd_vendida": 5,
             "data_venda": "2024-01-20"
         }
         
-        async with client as c:
-            response = await c.post("/api/v1/vendas/", json=venda_data)
+        response = await client.post("/api/v1/vendas/", json=venda_data)
         
         assert response.status_code == 400
     
     @pytest.mark.asyncio
     async def test_relatorio_vendas(self, client, mock_db):
         """Testa relatório de vendas."""
-        async with client as c:
-            response = await c.get("/api/v1/vendas/relatorio/periodo?data_inicio=2024-01-01&data_fim=2024-01-31")
+        response = await client.get(
+            "/api/v1/vendas/relatorio/periodo",
+            params={"data_inicio": "2024-01-01", "data_fim": "2024-01-31"}
+        )
         
         assert response.status_code == 200
         data = response.json()
@@ -206,8 +199,7 @@ class TestHealthCheck:
     @pytest.mark.asyncio
     async def test_health_check(self, client):
         """Testa endpoint de health check."""
-        async with client as c:
-            response = await c.get("/health")
+        response = await client.get("/health")
         
         assert response.status_code == 200
         data = response.json()

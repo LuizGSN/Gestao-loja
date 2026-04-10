@@ -2,7 +2,7 @@
 Schemas Pydantic para validação e documentação da API.
 """
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from typing import Optional
 from datetime import date
 
@@ -34,8 +34,7 @@ class ProdutoResponse(ProdutoBase):
     """Schema de resposta de produto."""
     id: int
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 # ==================== VENDA ====================
@@ -67,8 +66,7 @@ class VendaResponse(BaseModel):
     qntd_vendida: int
     data_venda: date
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 # ==================== RELATÓRIOS ====================

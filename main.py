@@ -15,6 +15,7 @@ import os
 import sys
 import logging
 from datetime import datetime
+from contextlib import asynccontextmanager
 from dotenv import load_dotenv
 from database import DatabaseManager
 from validators import (
@@ -588,6 +589,27 @@ def criar_app_api():
     from fastapi import FastAPI
     from api import configure_api_routes
     
+    # Inicializar banco de dados
+    config = {
+        "host": os.getenv("DB_HOST", "localhost"),
+        "user": os.getenv("DB_USER", "root"),
+        "password": os.getenv("DB_PASSWORD", ""),
+        "database": os.getenv("DB_DATABASE", "loja")
+    }
+    db = DatabaseManager(config)
+    
+    # Lifespan para eventos de startup e shutdown
+    @asynccontextmanager
+    async def lifespan(app: FastAPI):
+        logger.info("🚀 API Gestão Loja iniciada")
+        print("✅ API rodando! Acesse:")
+        print("   📖 Documentação Swagger: http://localhost:8000/docs")
+        print("   📘 Documentação ReDoc: http://localhost:8000/redoc")
+        print("   🔌 Health Check: http://localhost:8000/health")
+        yield
+        logger.info("🛑 API Gestão Loja encerrada")
+        db.fechar_conexao()
+    
     app = FastAPI(
         title="🏪 Gestão Loja API",
         description="""
@@ -607,35 +629,15 @@ def criar_app_api():
         """,
         version="2.0.0",
         docs_url="/docs",
-        redoc_url="/redoc"
+        redoc_url="/redoc",
+        lifespan=lifespan
     )
     
-    # Inicializar banco de dados e compartilhar com o app
-    config = {
-        "host": os.getenv("DB_HOST", "localhost"),
-        "user": os.getenv("DB_USER", "root"),
-        "password": os.getenv("DB_PASSWORD", ""),
-        "database": os.getenv("DB_DATABASE", "loja")
-    }
-    db = DatabaseManager(config)
+    # Compartilhar db com o app
     app.state.db = db
     
     # Configurar rotas
     configure_api_routes(app)
-    
-    # Eventos de startup e shutdown
-    @app.on_event("startup")
-    async def startup_event():
-        logger.info("🚀 API Gestão Loja iniciada")
-        print("✅ API rodando! Acesse:")
-        print("   📖 Documentação Swagger: http://localhost:8000/docs")
-        print("   📘 Documentação ReDoc: http://localhost:8000/redoc")
-        print("   🔌 Health Check: http://localhost:8000/health")
-    
-    @app.on_event("shutdown")
-    async def shutdown_event():
-        logger.info("🛑 API Gestão Loja encerrada")
-        db.fechar_conexao()
     
     # Health check endpoint
     @app.get("/health", tags=["Health"])

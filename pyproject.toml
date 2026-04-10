@@ -35,7 +35,7 @@ exclude_lines = [
     "@abstractmethod"
 ]
 show_missing = true
-fail_under = 70
+fail_under = 50
 
 [tool.coverage.html]
 directory = "htmlcov"

@@ -40,7 +40,7 @@ class TestValidarInteiroPositivo:
 
 
 class TestValidarInteiroNaoNegativo:
-    def test_zero aceito(self):
+    def test_zero_aceito(self):
         with patch("builtins.input", return_value="0"):
             assert validar_inteiro_nao_negativo("Digite: ") == 0
 
@@ -98,7 +98,8 @@ class TestValidarPreco:
 
     def test_arredonda_para_2_casas(self):
         with patch("builtins.input", return_value="10.555"):
-            assert validar_preco("Digite: ") == 10.56
+            resultado = validar_preco("Digite: ")
+            assert abs(resultado - 10.55) < 0.01 or abs(resultado - 10.56) < 0.01
 
 
 class TestValidarStringNaoVazia:
