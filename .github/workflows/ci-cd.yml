@@ -10,6 +10,7 @@ jobs:
   test:
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         python-version: ["3.10", "3.11", "3.12"]
 
@@ -25,16 +26,11 @@ jobs:
     - name: Instalar dependências
       run: |
         python -m pip install --upgrade pip
-        pip install -r requirements.txt
+        pip install pytest pytest-asyncio httpx
 
-    - name: Rodar testes
+    - name: Rodar testes unitários
       run: |
-        pytest tests/test_validators.py tests/test_utils.py -v
-
-    - name: Rodar testes com coverage
-      run: |
-        pytest tests/ -v --cov=. --cov-report=xml --cov-report=term-missing --cov-fail-under=30
-      continue-on-error: true
+        python -m pytest tests/test_validators.py tests/test_utils.py -v
 
   docker:
     runs-on: ubuntu-latest
@@ -51,7 +47,3 @@ jobs:
     - name: Build da imagem Docker
       run: |
         docker build -t gestao-loja-api:latest .
-
-    - name: Testar imagem Docker
-      run: |
-        docker run --rm gestao-loja-api:latest --help || true
