@@ -1,0 +1,80 @@
+version: '3.8'
+
+services:
+  # Banco de dados MySQL
+  mysql:
+    image: mysql:8.0
+    container_name: gestao-loja-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-rootpassword}
+      MYSQL_DATABASE: ${DB_DATABASE:-loja}
+      MYSQL_USER: ${DB_USER:-gestao_user}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-rootpassword}
+    ports:
+      - "${DB_PORT:-3306}:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./projeto_crud.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - gestao-loja-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  # API REST
+  api:
+    build: .
+    container_name: gestao-loja-api
+    restart: unless-stopped
+    ports:
+      - "${API_PORT:-8000}:8000"
+    environment:
+      DB_HOST: mysql
+      DB_USER: ${DB_USER:-gestao_user}
+      DB_PASSWORD: ${DB_PASSWORD:-rootpassword}
+      DB_DATABASE: ${DB_DATABASE:-loja}
+      API_HOST: 0.0.0.0
+      API_PORT: 8000
+    depends_on:
+      mysql:
+        condition: service_healthy
+    volumes:
+      - .:/app
+      - ./logs:/app/logs
+    networks:
+      - gestao-loja-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  # phpMyAdmin (opcional - para gerenciar o banco)
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:latest
+    container_name: gestao-loja-phpmyadmin
+    restart: unless-stopped
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      PMA_USER: root
+      PMA_PASSWORD: ${DB_PASSWORD:-rootpassword}
+    ports:
+      - "${PHPMYADMIN_PORT:-8080}:80"
+    depends_on:
+      - mysql
+    networks:
+      - gestao-loja-network
+
+volumes:
+  mysql_data:
+    driver: local
+
+networks:
+  gestao-loja-network:
+    driver: bridge

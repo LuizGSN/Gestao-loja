@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(c:\\Users\\luiz_\\Documents/**)",
+      "Read(C:\\Users\\luiz_/**)",
+      "Bash(code *)",
+      "Bash(powershell *)",
+      "Bash(python3 *)"
+    ]
+  },
+  "$version": 3
+}

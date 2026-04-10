@@ -40,13 +40,16 @@ coverage.xml
 *.cover
 .hypothesis/
 
+# Docker
+mysql_data/
+
+# OS
+.DS_Store
+Thumbs.db
+
 # pytest
 .pytest_cache/
 
 # Database
 *.db
 *.sqlite3
-
-# OS
-.DS_Store
-Thumbs.db
