@@ -20,6 +20,7 @@ from dotenv import load_dotenv
 from database import DatabaseManager
 from validators import (
     validar_inteiro_positivo,
+    validar_inteiro_nao_negativo,
     validar_float_positivo,
     validar_string_nao_vazia,
     validar_data,
@@ -104,7 +105,7 @@ Data da Venda: {venda[3]}
 
         nome = validar_string_nao_vazia("Digite o nome do produto: ")
         descricao = validar_string_nao_vazia("Digite a descrição do produto: ")
-        qntd_disponivel = validar_inteiro_positivo("Digite a quantidade disponível: ")
+        qntd_disponivel = validar_inteiro_nao_negativo("Digite a quantidade disponível: ")
         preco = validar_preco("Digite o preço do produto: ")
 
         try:
@@ -254,16 +255,20 @@ Escolha o que deseja editar:
 
         data_venda = validar_data("Digite a data da venda (DD/MM/AAAA ou deixe vazio para hoje): ")
 
+        # Se data_venda for None, usar data atual
+        if data_venda is None:
+            data_venda = datetime.now().strftime("%Y-%m-%d")
+
         try:
             # Usar transação para garantir consistência
             self.db.iniciar_transacao()
             try:
-                # Registrar venda
-                self.db.registrar_venda(id_produto, qntd_vendida, data_venda)
+                # Registrar venda (sem auto_commit)
+                self.db.registrar_venda(id_produto, qntd_vendida, data_venda, auto_commit=False)
 
-                # Atualizar estoque
+                # Atualizar estoque (sem auto_commit)
                 nova_qntd = qntd_disponivel - qntd_vendida
-                self.db.atualizar_quantidade_produto(nova_qntd, id_produto)
+                self.db.atualizar_quantidade_produto(nova_qntd, id_produto, auto_commit=False)
 
                 # Confirmar transação
                 self.db.commit()
@@ -343,10 +348,10 @@ Escolha o que deseja editar:
                     try:
                         self.db.iniciar_transacao()
                         try:
-                            # Atualizar venda e estoque
+                            # Atualizar venda e estoque (sem auto_commit)
                             novo_estoque = estoque_real - nova_qntd
-                            self.db.atualizar_quantidade_venda(nova_qntd, id_venda)
-                            self.db.atualizar_quantidade_produto(novo_estoque, produto_id)
+                            self.db.atualizar_quantidade_venda(nova_qntd, id_venda, auto_commit=False)
+                            self.db.atualizar_quantidade_produto(novo_estoque, produto_id, auto_commit=False)
                             self.db.commit()
 
                             print("✅ Quantidade atualizada com sucesso!")
@@ -415,11 +420,11 @@ Escolha o que deseja editar:
                     produto = self.db.buscar_produto_por_id(produto_id)
                     novo_estoque = produto[3] + venda[2]
 
-                    # Devolver produto ao estoque
-                    self.db.atualizar_quantidade_produto(novo_estoque, produto_id)
+                    # Devolver produto ao estoque (sem auto_commit)
+                    self.db.atualizar_quantidade_produto(novo_estoque, produto_id, auto_commit=False)
 
-                    # Excluir venda
-                    self.db.excluir_venda(id_venda)
+                    # Excluir venda (sem auto_commit)
+                    self.db.excluir_venda(id_venda, auto_commit=False)
 
                     # Confirmar transação
                     self.db.commit()
@@ -596,7 +601,7 @@ def criar_app_api():
         "password": os.getenv("DB_PASSWORD", ""),
         "database": os.getenv("DB_DATABASE", "loja")
     }
-    db = DatabaseManager(config)
+    db = DatabaseManager(config, use_pool=True, pool_size=10)
     
     # Lifespan para eventos de startup e shutdown
     @asynccontextmanager

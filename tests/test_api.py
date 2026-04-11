@@ -149,18 +149,18 @@ class TestVendasAPI:
     async def test_criar_venda(self, client, mock_db):
         """Testa criação de venda."""
         mock_db.registrar_venda.return_value = None
-        mock_db.atualizar_quantidade_produto.return_value = None
+        mock_db.vender_produto.return_value = 1  # 1 linha afetada
         mock_db.iniciar_transacao.return_value = None
         mock_db.commit.return_value = None
-        
+
         venda_data = {
             "id_produto": 1,
             "qntd_vendida": 2,
             "data_venda": "2024-01-20"
         }
-        
+
         response = await client.post("/api/v1/vendas/", json=venda_data)
-        
+
         assert response.status_code == 201
     
     @pytest.mark.asyncio

@@ -2,7 +2,7 @@
 Router para endpoints de produtos.
 """
 
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, HTTPException, Query, Depends
 from typing import List
 from database import DatabaseManager
 from api.schemas import (
@@ -11,6 +11,7 @@ from api.schemas import (
     ProdutoResponse,
     Mensagem
 )
+from api.dependencies import get_db
 import logging
 
 logger = logging.getLogger(__name__)
@@ -18,14 +19,8 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/produtos", tags=["Produtos"])
 
 
-def get_db():
-    """Retorna instância do DatabaseManager."""
-    from main import app
-    return app.state.db
-
-
 @router.post("/", response_model=Mensagem, status_code=201, summary="Cadastrar novo produto")
-async def criar_produto(produto: ProdutoCreate):
+async def criar_produto(produto: ProdutoCreate, db: DatabaseManager = Depends(get_db)):
     """
     Cadastra um novo produto no sistema.
 
@@ -34,7 +29,6 @@ async def criar_produto(produto: ProdutoCreate):
     - **qntd_disponivel**: Quantidade em estoque (≥ 0)
     - **preco**: Preço do produto (≥ 0)
     """
-    db = get_db()
     try:
         db.inserir_produto(
             produto.nome,
@@ -50,11 +44,10 @@ async def criar_produto(produto: ProdutoCreate):
 
 
 @router.get("/", response_model=List[ProdutoResponse], summary="Listar todos os produtos")
-async def listar_produtos():
+async def listar_produtos(db: DatabaseManager = Depends(get_db)):
     """
     Retorna todos os produtos cadastrados.
     """
-    db = get_db()
     try:
         produtos = db.buscar_todos_produtos()
         return [
@@ -73,16 +66,15 @@ async def listar_produtos():
 
 
 @router.get("/{produto_id}", response_model=ProdutoResponse, summary="Buscar produto por ID")
-async def buscar_produto(produto_id: int):
+async def buscar_produto(produto_id: int, db: DatabaseManager = Depends(get_db)):
     """
     Busca um produto específico pelo ID.
     """
-    db = get_db()
     produto = db.buscar_produto_por_id(produto_id)
-    
+
     if not produto:
         raise HTTPException(status_code=404, detail="Produto não encontrado")
-    
+
     return ProdutoResponse(
         id=produto[0],
         nome=produto[1],
@@ -93,11 +85,10 @@ async def buscar_produto(produto_id: int):
 
 
 @router.get("/busca/nome", response_model=List[ProdutoResponse], summary="Buscar produto por nome")
-async def buscar_produto_por_nome(nome: str = Query(..., min_length=1, description="Nome ou parte do nome")):
+async def buscar_produto_por_nome(nome: str = Query(..., min_length=1, description="Nome ou parte do nome"), db: DatabaseManager = Depends(get_db)):
     """
     Busca produtos por nome (busca parcial).
     """
-    db = get_db()
     try:
         produtos = db.buscar_produto_por_nome(nome)
         return [
@@ -118,15 +109,15 @@ async def buscar_produto_por_nome(nome: str = Query(..., min_length=1, descripti
 @router.get("/busca/faixa-preco", response_model=List[ProdutoResponse], summary="Buscar produto por faixa de preço")
 async def buscar_produto_por_preco(
     preco_min: float = Query(..., ge=0, description="Preço mínimo"),
-    preco_max: float = Query(..., ge=0, description="Preço máximo")
+    preco_max: float = Query(..., ge=0, description="Preço máximo"),
+    db: DatabaseManager = Depends(get_db)
 ):
     """
     Busca produtos por faixa de preço.
     """
     if preco_min > preco_max:
         raise HTTPException(status_code=400, detail="Preço mínimo deve ser menor que o máximo")
-    
-    db = get_db()
+
     try:
         produtos = db.buscar_produto_por_faixa_preco(preco_min, preco_max)
         return [
@@ -145,29 +136,28 @@ async def buscar_produto_por_preco(
 
 
 @router.put("/{produto_id}", response_model=Mensagem, summary="Atualizar produto")
-async def atualizar_produto(produto_id: int, produto: ProdutoUpdate):
+async def atualizar_produto(produto_id: int, produto: ProdutoUpdate, db: DatabaseManager = Depends(get_db)):
     """
     Atualiza um produto existente. Apenas os campos fornecidos serão atualizados.
     """
-    db = get_db()
     produto_existente = db.buscar_produto_por_id(produto_id)
-    
+
     if not produto_existente:
         raise HTTPException(status_code=404, detail="Produto não encontrado")
-    
+
     try:
         if produto.nome is not None:
             db.atualizar_nome_produto(produto.nome, produto_id)
-        
+
         if produto.descricao is not None:
             db.atualizar_descricao_produto(produto.descricao, produto_id)
-        
+
         if produto.qntd_disponivel is not None:
             db.atualizar_quantidade_produto(produto.qntd_disponivel, produto_id)
-        
+
         if produto.preco is not None:
             db.atualizar_preco_produto(produto.preco, produto_id)
-        
+
         logger.info(f"Produto {produto_id} atualizado via API")
         return Mensagem(mensagem="Produto atualizado com sucesso!")
     except Exception as e:
@@ -176,16 +166,15 @@ async def atualizar_produto(produto_id: int, produto: ProdutoUpdate):
 
 
 @router.delete("/{produto_id}", response_model=Mensagem, summary="Excluir produto")
-async def excluir_produto(produto_id: int):
+async def excluir_produto(produto_id: int, db: DatabaseManager = Depends(get_db)):
     """
     Exclui um produto pelo ID.
     """
-    db = get_db()
     produto = db.buscar_produto_por_id(produto_id)
-    
+
     if not produto:
         raise HTTPException(status_code=404, detail="Produto não encontrado")
-    
+
     try:
         db.excluir_produto(produto_id)
         logger.info(f"Produto {produto_id} excluído via API")
